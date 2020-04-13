@@ -13,6 +13,7 @@ pip-wheel-metadata
 poetry.lock
 *.py[cod]
 *.egg-info
+requirements.txt
 
 # dev stuff
 .idea

@@ -57,9 +57,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Location check
-        run: echo "Currently on ${{ github.ref }}"
-
       # download docs artifacts and publish them
       - uses: actions/download-artifact@v1
         with:
@@ -76,7 +73,7 @@ jobs:
       # download packages and publish them
       - uses: actions/setup-python@v1
         with:
-          python-version: '3'
+          python-version: '3.6'
           architecture: 'x64'
       - uses: actions/download-artifact@v1
         with:
@@ -88,6 +85,5 @@ jobs:
       - name: Deploy new package version to pypi
         if: github.ref == 'refs/heads/master'
         run: |
-          echo "Here is where the code will be published once it actually does something."
-          # poetry config repositories.github https://github.com/a-recknagel/flask_shortcut/packages
-          # poetry publish -r github -u ${{ secrets.GITHUB_TOKEN }} -p ${{ secrets.GITHUB_TOKEN }} artifacts/dist/*
+          poetry config pypi-token.pypi ${{ secrets.PIPY_TOKEN }}
+          poetry publish -r pipy artifacts/dist/*

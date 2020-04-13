@@ -46,7 +46,7 @@ def diff(target, sub, path_=None) -> bool:
             return False
         return True
     else:  # some kind of leaf, probably string, int, or float
-        return target == sub
+        return bool(target == sub)
 
 
 class Shortcut:
@@ -67,7 +67,7 @@ class Shortcut:
 
             @wraps(f)
             def decorated(*args, **kwargs):
-                assert isinstance(mapping, tuple), "Messed up shortcut wiring, abort."
+                assert isinstance(mapping, tuple), "Messed up shortcut wiring, abort."  # nosec
                 if self.app.env != PRODUCTION:
                     # 'condition' is assumed to be always True in this shortcut
                     response, status = mapping
@@ -82,7 +82,7 @@ class Shortcut:
 
             @wraps(f)
             def decorated(*args, **kwargs):
-                assert isinstance(mapping, dict), "Messed up shortcut wiring, abort."
+                assert isinstance(mapping, dict), "Messed up shortcut wiring, abort."  # nosec
                 logger.debug(f"Running shortcut for '{f_name}'.")
 
                 if self.app.env != PRODUCTION:

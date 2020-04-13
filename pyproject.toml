@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask_shortcut"
-version = "0.1.0"
+version = "0.2.0"
 description = "Extension that provides an easy way to add dev-only shortcuts to your routes."
 license = "MIT"
 authors = ["Arne <arecknag@gmail.com>"]
@@ -28,9 +28,14 @@ black = "^19.10b0"
 requests = "^2.23.0"
 sphinx = "^3.0.1"
 Pallets-Sphinx-Themes = "^1.2.3"
+mypy = "^0.770"
+pytest-coverage = "^0.0"
+bandit = "^1.6.2"
+liccheck = "^0.4.2"
+safety = "^1.8.7"
 
 [tool.black]
-target-version = ["py38"]
+target-version = ["py36"]
 line-length = 120
 
 [build-system]

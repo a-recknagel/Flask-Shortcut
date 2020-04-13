@@ -1,0 +1,9 @@
+[run]
+branch = True
+source = flask_shortcut
+omit =
+  */__init__.py
+
+[report]
+fail_under = 0
+show_missing = True
