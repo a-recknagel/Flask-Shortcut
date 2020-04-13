@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>flask_shortcut package &#8212; Flask-Shortcut 0.2.3 documentation</title>
+    <link rel="stylesheet" href="../_static/flask.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Flask-Shortcut documentation" href="../index.html" />
+  <script>DOCUMENTATION_OPTIONS.URL_ROOT = '../';</script>
+   
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Flask-Shortcut documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask-Shortcut 0.2.3 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-flask_shortcut">
+<span id="flask-shortcut-package"></span><h1>flask_shortcut package<a class="headerlink" href="#module-flask_shortcut" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="flask_shortcut.Shortcut">
+<em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/logic.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="flask_shortcut.Shortcut.wire">
+<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="o">=</span><span class="default_value">typing.Dict[str, typing.Union[typing.Tuple, typing.Dict]]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/logic.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-flask_shortcut.logic">
+<span id="flask-shortcut-logic-module"></span><h2>flask_shortcut.logic module<a class="headerlink" href="#module-flask_shortcut.logic" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="flask_shortcut.logic.Shortcut">
+<em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.logic.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/logic.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.logic.Shortcut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="flask_shortcut.logic.Shortcut.wire">
+<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="o">=</span><span class="default_value">typing.Dict[str, typing.Union[typing.Tuple, typing.Dict]]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/logic.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.logic.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="flask_shortcut.logic.diff">
+<code class="sig-prename descclassname">flask_shortcut.logic.</code><code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">sub</span></em>, <em class="sig-param"><span class="n">path_</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/flask_shortcut/logic.html#diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.logic.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple recursive asymmetric diff function on json-like data structures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> – The data container in which we want to find a subtree.</p></li>
+<li><p><strong>sub</strong> – The subtree that needs to be matched.</p></li>
+<li><p><strong>path_</strong> – A private object used to produce meaningful error messages.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the subtree could be cleanly matched, else False.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – If the parse paths don’t match, e.g. the target is a list
+    where the subtree expected to be a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/cabbage-96.png" alt="Logo"/>
+            </a></p>
+  
+
+  <h3>Contents</h3>
+  <ul>
+<li><a class="reference internal" href="#">flask_shortcut package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-flask_shortcut.logic">flask_shortcut.logic module</a></li>
+</ul>
+</li>
+</ul>
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../index.html">Overview</a>
+    <ul>
+          <li>Previous: <a href="../index.html" title="previous chapter">Flask-Shortcut documentation</a>
+          
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Arne.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+    </div>
+  <script src="../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>

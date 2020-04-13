@@ -1,0 +1,19 @@
+flask\_shortcut package
+=======================
+
+.. automodule:: flask_shortcut
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+flask\_shortcut.logic module
+----------------------------
+
+.. automodule:: flask_shortcut.logic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
