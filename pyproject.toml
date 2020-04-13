@@ -18,16 +18,20 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 flask = "^1.1.2"
+click = "^7.1.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^19.10b0"
 requests = "^2.23.0"
+sphinx = "^3.0.1"
+Pallets-Sphinx-Themes = "^1.2.3"
 
 [tool.black]
 target-version = ["py38"]
+line-length = 120
 
 [build-system]
 requires = ["poetry>=0.12"]

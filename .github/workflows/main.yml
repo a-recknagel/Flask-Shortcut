@@ -1,0 +1,93 @@
+name: CI-CD
+
+on: [push, pull_request]
+
+jobs:
+
+  CI:
+    runs-on: ubuntu-18.04
+    steps:
+
+      # setup python environment
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.6'
+          architecture: 'x64'
+      - uses: actions/checkout@v1
+      - uses: dschep/install-poetry-action@v1.3
+        with:
+          version: 1.0.5
+
+      # run CI pipeline
+      - name: Installing package
+        run: poetry install
+      - name: Building package as artifact
+        run: poetry build
+      - name: Building documentation
+        run: |
+          sphinx-apidoc --no-toc --module-first -o docs/autodoc flask_shortcut
+          sphinx-build docs/ public/ -b html
+      - name: Make sure the project is black
+        run: black --check flask_shortcut/ tests/
+      - name: Static typing test with mypy
+        run: mypy flask_shortcut/
+      - name: Running test suite
+        run: pytest tests/
+      - name: Running test coverage
+        run: pytest tests/ --cov
+      - name: Test dependencies for known issues
+        run: |
+          poetry export -f requirements.txt -o requirements.txt
+          safety check -r requirements.txt
+      - name: Test source code for potential exploits
+        run: bandit -r flask_shortcut/
+
+      # upload artifacts
+      - uses: actions/upload-artifact@v1
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/upload-artifact@v1
+        with:
+          name: documentation
+          path: public
+
+  CD:
+    needs: [CI]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Location check
+        run: echo "Currently on ${{ github.ref }}"
+
+      # download docs artifacts and publish them
+      - uses: actions/download-artifact@v1
+        with:
+          name: documentation
+          path: public
+      - name: Deploy docs to github pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v2.3.1
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PAT }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: public
+
+      # download packages and publish them
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3'
+          architecture: 'x64'
+      - uses: actions/download-artifact@v1
+        with:
+          name: distributions
+          path: dist
+      - uses: dschep/install-poetry-action@v1.3
+        with:
+          version: 1.0.5
+      - name: Deploy new package version to pypi
+        if: github.ref == 'refs/heads/master'
+        run: |
+          echo "Here is where the code will be published once it actually does something."
+          # poetry config repositories.github https://github.com/a-recknagel/flask_shortcut/packages
+          # poetry publish -r github -u ${{ secrets.GITHUB_TOKEN }} -p ${{ secrets.GITHUB_TOKEN }} artifacts/dist/*
