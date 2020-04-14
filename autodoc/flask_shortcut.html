@@ -69,9 +69,12 @@
 
 </dd></dl>
 
+</div>
+<div class="section" id="module-flask_shortcut.util">
+<span id="flask-shortcut-util-module"></span><h2>flask_shortcut.util module<a class="headerlink" href="#module-flask_shortcut.util" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="flask_shortcut.logic.diff">
-<code class="sig-prename descclassname">flask_shortcut.logic.</code><code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">sub</span></em>, <em class="sig-param"><span class="n">path_</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/flask_shortcut/logic.html#diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.logic.diff" title="Permalink to this definition">¶</a></dt>
+<dt id="flask_shortcut.util.diff">
+<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">sub</span></em>, <em class="sig-param"><span class="n">path_</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/flask_shortcut/util.html#diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple recursive asymmetric diff function on json-like data structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -84,12 +87,33 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>True if the subtree could be cleanly matched, else False.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>bool</p>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – If the parse paths don’t match, e.g. the target is a list
+    where the subtree expected to be a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="flask_shortcut.util.get_request_data">
+<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">get_request_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">flask.wrappers.Request</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/util.html#get_request_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.get_request_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request data fetcher.</p>
+<p>This function inspects the mimetype in order to figure out how the data
+can be represented in a standard python dictionary form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>The data in a form that sticks as close a parsed json object as possible, since</dt><dd><p>that is the format in which the mappings expect to be passed by.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>TypeError</strong> – If the parse paths don’t match, e.g. the target is a list
-    where the subtree expected to be a dictionary.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – In case of unexpected request data formats.</p></li>
+<li><p><strong>Exception</strong> – In case of junk data, hard to list what each parser
+    decides is best to raise.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -116,6 +140,7 @@
 <li><a class="reference internal" href="#">flask_shortcut package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-flask_shortcut.logic">flask_shortcut.logic module</a></li>
+<li><a class="reference internal" href="#module-flask_shortcut.util">flask_shortcut.util module</a></li>
 </ul>
 </li>
 </ul>

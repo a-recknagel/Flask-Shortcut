@@ -17,3 +17,11 @@ flask\_shortcut.logic module
    :undoc-members:
    :show-inheritance:
 
+flask\_shortcut.util module
+---------------------------
+
+.. automodule:: flask_shortcut.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

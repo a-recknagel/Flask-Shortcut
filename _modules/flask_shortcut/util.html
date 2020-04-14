@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>flask_shortcut.util &#8212; Flask-Shortcut 0.2.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/flask.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <script>DOCUMENTATION_OPTIONS.URL_ROOT = '../../';</script>
+   
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.2.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for flask_shortcut.util</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">import</span> <span class="nn">xmltodict</span>
+
+
+<div class="viewcode-block" id="get_request_data"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.get_request_data">[docs]</a><span class="k">def</span> <span class="nf">get_request_data</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Request data fetcher.</span>
+
+<span class="sd">    This function inspects the mimetype in order to figure out how the data</span>
+<span class="sd">    can be represented in a standard python dictionary form.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The data in a form that sticks as close a parsed json object as possible, since</span>
+<span class="sd">            that is the format in which the mappings expect to be passed by.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: In case of unexpected request data formats.</span>
+<span class="sd">        Exception: In case of junk data, hard to list what each parser</span>
+<span class="sd">            decides is best to raise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;json&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span>
+    <span class="k">if</span> <span class="s2">&quot;xml&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dict_constructor</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mimetype &#39;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="si">}</span><span class="s2">&#39; not parsable.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="diff"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.diff">[docs]</a><span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">path_</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Simple recursive asymmetric diff function on json-like data structures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target: The data container in which we want to find a subtree.</span>
+<span class="sd">        sub: The subtree that needs to be matched.</span>
+<span class="sd">        path_: A private object used to produce meaningful error messages.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the subtree could be cleanly matched, else False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: If the parse paths don&#39;t match, e.g. the target is a list</span>
+<span class="sd">            where the subtree expected to be a dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path_</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">sub</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Types of target &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; and sub &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; are incompatible at junction </span><span class="si">{</span><span class="n">path_</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">s_elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sub</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">t_elem</span> <span class="ow">in</span> <span class="n">target</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">diff</span><span class="p">(</span><span class="n">t_elem</span><span class="p">,</span> <span class="n">s_elem</span><span class="p">,</span> <span class="p">[</span><span class="o">*</span><span class="n">path_</span><span class="p">,</span> <span class="n">n</span><span class="p">]):</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s_key</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s_key</span> <span class="ow">in</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">diff</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="n">s_key</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="n">s_key</span><span class="p">],</span> <span class="p">[</span><span class="o">*</span><span class="n">path_</span><span class="p">,</span> <span class="n">s_key</span><span class="p">]):</span>
+                <span class="k">continue</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># some kind of leaf, probably string, int, or float</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">target</span> <span class="o">==</span> <span class="n">sub</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+  <span id="sidebar-top"></span>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  
+    
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/cabbage-96.png" alt="Logo"/>
+            </a></p>
+  
+<h3>Navigation</h3>
+<ul>
+  <li><a href="../../index.html">Overview</a>
+    <ul>
+      <li><a href="../index.html">Module code</a>
+        
+          
+          </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Arne.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+    </div>
+  <script src="../../_static/version_warning_offset.js"></script>
+
+  </body>
+</html>
