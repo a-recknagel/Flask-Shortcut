@@ -6,7 +6,7 @@ def get_request_data(r: Request):
     """Request data fetcher.
 
     This function inspects the mimetype in order to figure out how the data
-    can be represented in a standard python dictionary form.
+    can be represented in a standard python-dictionary form.
 
     Returns:
         The data in a form that sticks as close a parsed json object as possible, since
@@ -37,7 +37,7 @@ def diff(target, sub, path_=None) -> bool:
 
     Raises:
         TypeError: If the parse paths don't match, e.g. the target is a list
-            where the subtree expected to be a dictionary.
+            at a level where the subtree expected it to be a dictionary.
     """
     if path_ is None:
         path_ = ["root"]
@@ -59,5 +59,5 @@ def diff(target, sub, path_=None) -> bool:
                 continue
             return False
         return True
-    else:  # some kind of leaf, probably string, int, or float
+    else:  # some kind of leaf, i.e. string, int, bool, float, or None
         return bool(target == sub)

@@ -3,7 +3,7 @@ Flask-Shortcut
 
 .. image:: https://img.icons8.com/color/144/000000/cabbage.png
    :alt: Cabbage
-   :align: center
+   :align: left
 
 
 .. image:: https://github.com/a-recknagel/Flask-Shortcut/workflows/CI-CD/badge.svg
@@ -16,7 +16,7 @@ Flask-Shortcut
 
 .. image:: https://img.shields.io/badge/docs-github--pages-blue
    :alt: Documentation home
-   :target: https://a-recknagel.github.io/flask-shortcut/
+   :target: https://a-recknagel.github.io/Flask-Shortcut/
 
 .. image:: https://img.shields.io/pypi/l/flask-shortcut
    :alt: Package license
