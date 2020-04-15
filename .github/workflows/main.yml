@@ -41,6 +41,8 @@ jobs:
           safety check -r requirements.txt
       - name: Test source code for potential exploits
         run: bandit -r flask_shortcut/
+      - name: Make sure all used licenses are fine
+        run: liccheck -s strategy.ini
 
       # upload artifacts
       - uses: actions/upload-artifact@v1
@@ -64,26 +66,27 @@ jobs:
           path: public
       - name: Deploy docs to github pages
         if: github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v2.3.1
-        env:
-          PERSONAL_TOKEN: ${{ secrets.PAT }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: public
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
 
       # download packages and publish them
       - uses: actions/setup-python@v1
         with:
           python-version: '3.6'
           architecture: 'x64'
+      - uses: dschep/install-poetry-action@v1.3
+        with:
+          version: 1.0.5
+      - uses: actions/checkout@v1  # easiest way to get to the pyproject.toml file
       - uses: actions/download-artifact@v1
         with:
           name: distributions
           path: dist
-      - uses: dschep/install-poetry-action@v1.3
-        with:
-          version: 1.0.5
       - name: Deploy new package version to pypi
         if: github.ref == 'refs/heads/master'
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PIPY_TOKEN }}
-          poetry publish -r pipy artifacts/dist/*
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PIPY_TOKEN }}
+        run:
+          poetry publish

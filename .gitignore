@@ -19,4 +19,4 @@ requirements.txt
 .idea
 venv
 env
-
+flasky.py

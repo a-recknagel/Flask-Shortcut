@@ -6,47 +6,10 @@ import json
 from click import secho
 from flask import request, Flask
 
+from flask_shortcut.util import diff, get_request_data
+
 PRODUCTION = "production"
 logger = getLogger(__name__)
-
-
-def diff(target, sub, path_=None) -> bool:
-    """Simple recursive asymmetric diff function on json-like data structures.
-
-    Args:
-        target: The data container in which we want to find a subtree.
-        sub: The subtree that needs to be matched.
-        path_: A private object used to produce meaningful error messages.
-
-    Returns:
-        bool: True if the subtree could be cleanly matched, else False.
-
-    Raises:
-        TypeError: If the parse paths don't match, e.g. the target is a list
-            where the subtree expected to be a dictionary.
-    """
-    if path_ is None:
-        path_ = ["root"]
-
-    if type(target) != type(sub):
-        raise TypeError(f"Types of target '{type(target)}' and sub '{type(sub)}' are incompatible at junction {path_}.")
-
-    if isinstance(sub, list):
-        for n, s_elem in enumerate(sub):
-            for t_elem in target:
-                if diff(t_elem, s_elem, [*path_, n]):
-                    break
-            else:
-                return False
-        return True
-    elif isinstance(sub, dict):
-        for s_key in sub:
-            if s_key in target and diff(target[s_key], sub[s_key], [*path_, s_key]):
-                continue
-            return False
-        return True
-    else:  # some kind of leaf, probably string, int, or float
-        return bool(target == sub)
 
 
 class Shortcut:
@@ -60,7 +23,7 @@ class Shortcut:
     def __call__(self, mapping: Union[Tuple[Any, int], Dict[str, Tuple[Any, int]]]):
         logger.debug(f"Registering shortcut with mapping of type '{type(mapping)}'.")
 
-        # wrapper definitions
+        # wrapper for simple tuple mappings
         def simple_map(f):
             f_name = f"{f.__module__}.{f.__name__}"
             logger.debug(f"Adding simple_map shortcut for routing function '{f_name}'.")
@@ -76,6 +39,7 @@ class Shortcut:
 
             return decorated
 
+        # wrapper for dict-based mappings
         def dict_map(f):
             f_name = f"{f.__module__}.{f.__name__}"
             logger.debug(f"Adding dict_map shortcut for routing function '{f_name}'.")
@@ -88,7 +52,7 @@ class Shortcut:
                 if self.app.env != PRODUCTION:
                     for condition, (response, status) in mapping.items():
                         try:
-                            sub_resolves = diff(request.json, json.loads(condition))
+                            sub_resolves = diff(get_request_data(request), json.loads(condition))
                         except TypeError as e:
                             logger.debug(
                                 f"Couldn't walk '{condition}' in the target request, got error message '{str(e)}'. "

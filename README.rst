@@ -8,7 +8,7 @@ Flask-Shortcut
 
 .. image:: https://github.com/a-recknagel/Flask-Shortcut/workflows/CI-CD/badge.svg
    :alt: Main workflow status
-   :target: https://github.com/a-recknagel/stenotype/actions
+   :target: https://github.com/a-recknagel/Flask-Shortcut/actions
 
 .. image:: https://img.shields.io/pypi/v/flask-shortcut
    :alt: Current pyPI version
