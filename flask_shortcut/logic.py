@@ -1,5 +1,6 @@
 from logging import getLogger
-from typing import Union, Tuple, Dict, Any
+from typing import Union, Tuple, Dict, Any, Optional
+from types import MethodType
 from functools import wraps
 import json
 
@@ -57,6 +58,9 @@ class Shortcut:
         ...     return 'ok', 200
         >>> short.wire({'/my_route': ('short_ok', 200)})
     """
+
+    app: Optional[Flask]
+
     def __init__(self, app: Flask):
         if app.env not in _EXCLUDE:
             logger.info(f"Setting up flask shortcuts in environment '{app.env}'.")
@@ -64,7 +68,7 @@ class Shortcut:
             self.app = app
         else:
             # make .cut(...) return a wrapper that does nothing
-            self.cut = lambda mapping: lambda f: f
+            self.cut = MethodType(lambda mapping: lambda f: f, self)  # type: ignore
             self.app = None
 
     def cut(self, mapping: Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS]]):
