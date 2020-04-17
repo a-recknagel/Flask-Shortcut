@@ -1,12 +1,17 @@
+from typing import Any
+
 from flask import Request
 import xmltodict
 
 
-def get_request_data(r: Request):
+def get_request_data(r: Request) -> Any:
     """Request data fetcher.
 
     This function inspects the mimetype in order to figure out how the data
     can be represented in a standard python-dictionary form.
+
+    Args:
+        r: The request whose body is going to be parsed.
 
     Returns:
         The data in a form that sticks as close a parsed json object as possible, since

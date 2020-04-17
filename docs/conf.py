@@ -23,4 +23,4 @@ extensions = [
 # -- Options for HTML output -------------------------------------------------
 html_theme = "flask"
 html_static_path = ["_static"]
-html_logo = "_static/cabbage-96.png"
+html_logo = "_static/shortcut-logo-narrow.png"
