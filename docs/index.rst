@@ -7,9 +7,7 @@ Flask-Shortcut documentation
 .. toctree::
    :maxdepth: 4
 
-   Autodocs <autodoc/flask_shortcut>
+   Module Content <autodoc/flask_shortcut>
 
 .. include:: ../README.rst
    :start-after: header-end
-
-

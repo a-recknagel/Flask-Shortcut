@@ -16,21 +16,24 @@ conjunction with their clients. If you need to assert working communication and
 basic integration in a sufficiently complex ecosystem, clients that can not
 freely chose how their requests are formed gain a lot from being able to
 receive predictable responses. By skipping over the details of how the
-microservice is implemented, which bugs and minute changes it has over time,
-testing basic API compatibility gets a lot more manageable.
+microservice is implemented, which bugs and minor changes it experiences over
+time, testing basic API compatibility gets a lot more manageable.
 
 
 
 Usage
 -----
 
-You can either add shortcuts individually to your route functions with a
-decorator, or in a single swoop once all routes have all been defined.
-Both ways are functionally equivalent.
+You can add shortcuts to your route functions either individually with
+decorators, or in a single swoop once all routes have been defined. Both ways
+are functionally equivalent.
 
 **With decorators:**
 
 .. code-block:: python
+
+    from flask import Flask
+    from flask_shortcut import Shortcut
 
     app = Flask(__name__)
     short = Shortcut(app)
@@ -49,6 +52,9 @@ Both ways are functionally equivalent.
 
 .. code-block:: python
 
+    from flask import Flask
+    from flask_shortcut import Shortcut
+
     app = Flask(__name__)
 
     app.route('/foo', methods=['GET'])
@@ -66,6 +72,10 @@ Both ways are functionally equivalent.
         }
     )
 
+
+----
+
+Project home `on github`_.
 
 .. |Logo| image:: https://user-images.githubusercontent.com/2063412/79608525-76ff3100-80f5-11ea-9421-a7e0b7a20ac2.png
    :alt: Logo
@@ -95,3 +105,5 @@ Both ways are functionally equivalent.
 .. |Style| image:: https://img.shields.io/badge/codestyle-black-black
    :alt: Any color you want
    :target: https://black.readthedocs.io/en/stable/
+
+.. _on github: https://github.com/a-recknagel/Flask-Shortcut

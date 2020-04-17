@@ -5,7 +5,7 @@ from flask_shortcut import __version__
 project = "Flask-Shortcut"
 copyright = "2020, Arne"
 author = "Arne Caratti"
-release = __version__
+version = release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -24,3 +24,7 @@ extensions = [
 html_theme = "flask"
 html_static_path = ["_static"]
 html_logo = "_static/shortcut-logo-narrow.png"
+html_favicon = "_static/shortcut-logo-favicon.png"
+html_sidebars = {
+   '**': ['localtoc.html ', 'relations.html'],
+}
