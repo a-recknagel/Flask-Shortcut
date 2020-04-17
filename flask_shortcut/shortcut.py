@@ -9,9 +9,11 @@ from flask import request, Flask
 
 from flask_shortcut.util import diff, get_request_data
 
-_EXCLUDE = ["production"]
 logger = getLogger(__name__)
 
+#: Internal list of environment values that will lead to a skip of shortcut routing.
+_EXCLUDE = ["production"]
+#: Shorthand for the return type of something pretending to be a route function.
 RESPONSE_ARGS = Tuple[Any, int]
 
 
@@ -40,19 +42,23 @@ class Shortcut:
     other by running the a single wire call after all routes were added.
 
     Example:
-        Basic app setup:
+
+        - Basic app setup:
+
         >>> from flask import Flask
         >>> from flask_shortcut import Shortcut
         >>> app = Flask(__name__)
         >>> short = Shortcut(app)
 
         - With shortcut decorator:
+
         >>> @app.route('/my_route', methods=['GET'])
         ... @short.cut(('short_ok', 200))
         ... def my_func():
         ...     return 'ok', 200
 
-        - With post route-definition wiring:
+        - Equivalent post route-definition wiring:
+
         >>> @app.route('/my_route', methods=['GET'])
         ... def my_func():
         ...     return 'ok', 200
@@ -108,8 +114,9 @@ class Shortcut:
                 logger.debug(f"Running shortcut for '{f_name}'.")
 
                 for condition, (response, status) in mapping.items():
+                    request_data = get_request_data(request)
                     try:
-                        sub_resolves = diff(get_request_data(request), json.loads(condition))
+                        sub_resolves = diff(request_data, json.loads(condition))
                     except TypeError as e:
                         logger.debug(
                             f"Couldn't walk '{condition}' in the target request, got error message '{str(e)}'. "
@@ -134,7 +141,7 @@ class Shortcut:
             raise TypeError(f"'{type(mapping)}' is not a supported mapping type for shortcuts yet.")
 
     def wire(self, shortcuts=Dict[str, Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS]]]):
-        """Manual wiring functions.
+        """Manual wiring function.
 
         If you don't want to have the shortcut definitions in your routing
         file for some reason (e.g. there are lots of shortcuts and it would
