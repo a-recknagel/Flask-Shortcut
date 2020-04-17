@@ -25,6 +25,3 @@ html_theme = "flask"
 html_static_path = ["_static"]
 html_logo = "_static/shortcut-logo-narrow.png"
 html_favicon = "_static/shortcut-logo-favicon.png"
-html_sidebars = {
-   '**': ['localtoc.html ', 'relations.html'],
-}
