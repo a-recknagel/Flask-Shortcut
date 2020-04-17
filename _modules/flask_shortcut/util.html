@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>flask_shortcut.util &#8212; Flask-Shortcut 0.3.0 documentation</title>
+    <title>flask_shortcut.util &#8212; Flask-Shortcut 0.3.1 documentation</title>
     <link rel="stylesheet" href="../../_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -13,6 +13,7 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/language_data.js"></script>
+    <link rel="shortcut icon" href="../../_static/shortcut-logo-favicon.png"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
   <script>DOCUMENTATION_OPTIONS.URL_ROOT = '../../';</script>
@@ -27,7 +28,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.3.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.3.1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -38,15 +39,20 @@
           <div class="body" role="main">
             
   <h1>Source code for flask_shortcut.util</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Request</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Request</span>
 <span class="kn">import</span> <span class="nn">xmltodict</span>
 
 
-<div class="viewcode-block" id="get_request_data"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.get_request_data">[docs]</a><span class="k">def</span> <span class="nf">get_request_data</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<div class="viewcode-block" id="get_request_data"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.get_request_data">[docs]</a><span class="k">def</span> <span class="nf">get_request_data</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Request data fetcher.</span>
 
 <span class="sd">    This function inspects the mimetype in order to figure out how the data</span>
 <span class="sd">    can be represented in a standard python-dictionary form.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        r: The request whose body is going to be parsed.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The data in a form that sticks as close a parsed json object as possible, since</span>
@@ -112,7 +118,7 @@
   
     
             <p class="logo"><a href="../../index.html">
-              <img class="logo" src="../../_static/cabbage-96.png" alt="Logo"/>
+              <img class="logo" src="../../_static/shortcut-logo-narrow.png" alt="Logo"/>
             </a></p>
   
 <h3>Navigation</h3>

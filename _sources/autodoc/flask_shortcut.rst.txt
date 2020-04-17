@@ -9,10 +9,10 @@ flask\_shortcut package
 Submodules
 ----------
 
-flask\_shortcut.logic module
-----------------------------
+flask\_shortcut.shortcut module
+-------------------------------
 
-.. automodule:: flask_shortcut.logic
+.. automodule:: flask_shortcut.shortcut
    :members:
    :undoc-members:
    :show-inheritance:

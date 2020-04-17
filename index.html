@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Flask-Shortcut documentation &#8212; Flask-Shortcut 0.3.0 documentation</title>
+    <title>Flask-Shortcut documentation &#8212; Flask-Shortcut 0.3.1 documentation</title>
     <link rel="stylesheet" href="_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -13,6 +13,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <link rel="shortcut icon" href="_static/shortcut-logo-favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="flask_shortcut package" href="autodoc/flask_shortcut.html" />
@@ -31,7 +32,7 @@
         <li class="right" >
           <a href="autodoc/flask_shortcut.html" title="flask_shortcut package"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.3.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.3.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,9 +48,9 @@
 </ul>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="autodoc/flask_shortcut.html">Autodocs</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="autodoc/flask_shortcut.html">Module Content</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="autodoc/flask_shortcut.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="autodoc/flask_shortcut.html#module-flask_shortcut.logic">flask_shortcut.logic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autodoc/flask_shortcut.html#module-flask_shortcut.shortcut">flask_shortcut.shortcut module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="autodoc/flask_shortcut.html#module-flask_shortcut.util">flask_shortcut.util module</a></li>
 </ul>
 </li>
@@ -57,8 +58,63 @@
 </div>
 <div class="section" id="project-description">
 <h2>Project Description<a class="headerlink" href="#project-description" title="Permalink to this headline">¶</a></h2>
-<p>Extension that provides an easy way to add dev-only shortcuts to routes in your
-flask application.</p>
+<p>This extension provides an easy and safe way to add dev-only shortcuts to
+routes in your flask application.</p>
+<p>The main beneficiaries are microservices that need to be tested regularly in
+conjunction with their clients. If you need to assert working communication and
+basic integration in a sufficiently complex ecosystem, clients that can not
+freely chose how their requests are formed gain a lot from being able to
+receive predictable responses. By skipping over the details of how the
+microservice is implemented, which bugs and minor changes it experiences over
+time, testing basic API compatibility gets a lot more manageable.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>You can add shortcuts to your route functions either individually with
+decorators, or in a single swoop once all routes have been defined. Both ways
+are functionally equivalent.</p>
+<p><strong>With decorators:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_shortcut</span> <span class="kn">import</span> <span class="n">Shortcut</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">short</span> <span class="o">=</span> <span class="n">Shortcut</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">((</span><span class="s1">&#39;short_foo&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;foo&#39;</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">({</span><span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)})</span>
+<span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;bar&#39;</span>
+</pre></div>
+</div>
+<p><strong>With a wire call</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask_shortcut</span> <span class="kn">import</span> <span class="n">Shortcut</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;foo&#39;</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;bar&#39;</span>
+
+<span class="n">Shortcut</span><span class="p">(</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">wire</span><span class="p">(</span>
+    <span class="p">{</span>
+         <span class="s1">&#39;/foo&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_foo&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+         <span class="s1">&#39;/bar&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>Project home <a class="reference external" href="https://github.com/a-recknagel/Flask-Shortcut">on github</a>.</p>
 </div>
 </div>
 
@@ -72,7 +128,7 @@ flask application.</p>
   
     
             <p class="logo"><a href="#">
-              <img class="logo" src="_static/cabbage-96.png" alt="Logo"/>
+              <img class="logo" src="_static/shortcut-logo-narrow.png" alt="Logo"/>
             </a></p>
   
 
@@ -80,6 +136,7 @@ flask application.</p>
   <ul>
 <li><a class="reference internal" href="#">Flask-Shortcut documentation</a><ul>
 <li><a class="reference internal" href="#project-description">Project Description</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
 </ul>
