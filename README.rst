@@ -85,9 +85,9 @@ Applying Shortcuts
 What it looks like
 ==================
 
-To showcase how the shortcuts are supposed to work, start the server from
-the example above with ``FLASK_ENV=test flask run`` and send some requests
-against it.
+To showcase how the shortcuts are supposed to work, here is the result
+of a couple of requests sent against the server from the example above
+if it were run with ``FLASK_ENV=test flask run``:
 
 .. code-block:: python
 
@@ -111,14 +111,17 @@ Configuration
 -------------
 
 By default, shortcuts will only be applied when ``FLASK_ENV`` is set to
-something different than ``'production'``. You can extend that list through
-the ``SHORTCUT_EXCLUSIONS`` config setting, either by adding it to your
-app's config before creating any Shortcut objects, or preferably by setting
-up the whole config `through a file`_.
+something different than the default setting ``production``. You can
+extend that list through the ``SHORTCUT_EXCLUSIONS`` config setting,
+either by adding it to your app's config before creating any Shortcut
+objects, or preferably by setting up the whole config `through a file`_.
+
+Possible values for it are all environments other than ``production`` that
+you want to block separated by commas, for example ``staging,master``.
 
 ----
 
-Project home `on github`_.
+Project home is `on github`_.
 
 .. |Logo| image:: https://user-images.githubusercontent.com/2063412/79631833-c1b39400-815b-11ea-90da-d9264420ef68.png
    :alt: Logo
