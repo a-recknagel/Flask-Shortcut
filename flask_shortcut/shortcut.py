@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Union, Tuple, Dict, Any, Optional
+from typing import Union, Tuple, Dict, Any
 from types import MethodType
 from functools import wraps
 import json
@@ -11,8 +11,6 @@ from flask_shortcut.util import diff, get_request_data
 
 logger = getLogger(__name__)
 
-#: Internal list of environment values that will lead to a skip of shortcut routing.
-_EXCLUDE = ["production"]
 #: Shorthand for the return type of something pretending to be a route function.
 RESPONSE_ARGS = Tuple[Any, int]
 
@@ -45,8 +43,6 @@ class Shortcut:
 
         - Basic app setup:
 
-        >>> from flask import Flask
-        >>> from flask_shortcut import Shortcut
         >>> app = Flask(__name__)
         >>> short = Shortcut(app)
 
@@ -65,17 +61,18 @@ class Shortcut:
         >>> short.wire({'/my_route': ('short_ok', 200)})
     """
 
-    app: Optional[Flask]
-
     def __init__(self, app: Flask):
-        if app.env not in _EXCLUDE:
+        self.app = app
+        self.exclude = ["production"]
+        if app.config.get("SHORTCUT_EXCLUSIONS"):
+            exclusions = [x.strip() for x in app.config["SHORTCUT_EXCLUSIONS"].split(",") if x]
+            self.exclude.extend(exclusions)
+        if app.env not in self.exclude:
             logger.info(f"Setting up flask shortcuts in environment '{app.env}'.")
             secho("   Route shortcuts enabled. Do not do this in any kind of production environment.", fg="red")
-            self.app = app
         else:
             # make .cut(...) return a wrapper that does nothing
-            self.cut = MethodType(lambda mapping: lambda f: f, self)  # type: ignore
-            self.app = None
+            self.cut = MethodType(lambda _self, mapping: lambda f: f, self)  # type: ignore
 
     def cut(self, mapping: Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS]]):
         """Returns route wrappers.
@@ -132,7 +129,7 @@ class Shortcut:
 
             return decorated
 
-        # assigning the right decorator depending on mapping types
+        # assigning the right decorator given the mapping types
         if isinstance(mapping, tuple):
             return simple_map
         elif isinstance(mapping, dict):
