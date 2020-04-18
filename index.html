@@ -73,6 +73,10 @@ time, testing basic API compatibility gets a lot more manageable.</p>
 <p>You can add shortcuts to your route functions either individually with
 decorators, or in a single swoop once all routes have been defined. Both ways
 are functionally equivalent.</p>
+</div>
+</div>
+<div class="section" id="applying-shortcuts">
+<h1>Applying Shortcuts<a class="headerlink" href="#applying-shortcuts" title="Permalink to this headline">¶</a></h1>
 <p><strong>With decorators:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 <span class="kn">from</span> <span class="nn">flask_shortcut</span> <span class="kn">import</span> <span class="n">Shortcut</span>
@@ -86,7 +90,10 @@ are functionally equivalent.</p>
     <span class="k">return</span> <span class="s1">&#39;foo&#39;</span>
 
 <span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">({</span><span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)})</span>
+<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">({</span>
+    <span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)},</span>
+    <span class="s1">&#39;{&quot;name&quot;: &quot;UserTest&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longer_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+<span class="p">)</span>
 <span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;bar&#39;</span>
 </pre></div>
@@ -108,13 +115,46 @@ are functionally equivalent.</p>
 <span class="n">Shortcut</span><span class="p">(</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">wire</span><span class="p">(</span>
     <span class="p">{</span>
          <span class="s1">&#39;/foo&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_foo&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
-         <span class="s1">&#39;/bar&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+         <span class="s1">&#39;/bar&#39;</span><span class="p">:</span> <span class="p">{</span>
+             <span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+             <span class="s1">&#39;{&quot;name&quot;: &quot;UserTest&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longer_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="what-it-looks-like">
+<h1>What it looks like<a class="headerlink" href="#what-it-looks-like" title="Permalink to this headline">¶</a></h1>
+<p>To showcase how the shortcuts are supposed to work, here is the result
+of a couple of requests sent against the server from the example above
+if it were run with <code class="docutils literal notranslate"><span class="pre">FLASK_ENV=test</span> <span class="pre">flask</span> <span class="pre">run</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">request</span> <span class="kn">import</span> <span class="n">get</span><span class="p">,</span> <span class="n">post</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/foo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;short_foo&#39;  # the only response this route will give</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/bar&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;me&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;bar&#39;  # no shortcut match -&gt; the original logic was executed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/bar&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TestUser&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;short_bar&#39;  # shortcut match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/bar&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;UserTest&quot;</span><span class="p">,</span> <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;longer_bar&#39;  # shortcut only needs to be contained for a match</span>
+</pre></div>
+</div>
+<p>One focus of this package was, that a production deployment would remain
+as ignorant as possible about the existence of shortcuts. While the
+shortcut object is still created, it only delegates the route functions
+and no shortcut code has any chance of being run.</p>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>By default, shortcuts will only be applied when <code class="docutils literal notranslate"><span class="pre">FLASK_ENV</span></code> is set to
+something different than the default setting <code class="docutils literal notranslate"><span class="pre">production</span></code>. You can
+extend that list through the <code class="docutils literal notranslate"><span class="pre">SHORTCUT_EXCLUSIONS</span></code> config setting,
+either by adding it to your app’s config before creating any Shortcut
+objects, or preferably by setting up the whole config <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files">through a file</a>.</p>
+<p>Possible values for it are all environments other than <code class="docutils literal notranslate"><span class="pre">production</span></code> that
+you want to block separated by commas, for example <code class="docutils literal notranslate"><span class="pre">staging,master</span></code>.</p>
 <hr class="docutils" />
-<p>Project home <a class="reference external" href="https://github.com/a-recknagel/Flask-Shortcut">on github</a>.</p>
+<p>Project home is <a class="reference external" href="https://github.com/a-recknagel/Flask-Shortcut">on github</a>.</p>
 </div>
 </div>
 
@@ -137,6 +177,11 @@ are functionally equivalent.</p>
 <li><a class="reference internal" href="#">Flask-Shortcut documentation</a><ul>
 <li><a class="reference internal" href="#project-description">Project Description</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#applying-shortcuts">Applying Shortcuts</a></li>
+<li><a class="reference internal" href="#what-it-looks-like">What it looks like</a><ul>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
 </ul>
 </li>
 </ul>

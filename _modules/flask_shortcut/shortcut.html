@@ -40,7 +40,7 @@
             
   <h1>Source code for flask_shortcut.shortcut</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -52,8 +52,6 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="c1">#: Internal list of environment values that will lead to a skip of shortcut routing.</span>
-<span class="n">_EXCLUDE</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;production&quot;</span><span class="p">]</span>
 <span class="c1">#: Shorthand for the return type of something pretending to be a route function.</span>
 <span class="n">RESPONSE_ARGS</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 
@@ -86,8 +84,6 @@
 
 <span class="sd">        - Basic app setup:</span>
 
-<span class="sd">        &gt;&gt;&gt; from flask import Flask</span>
-<span class="sd">        &gt;&gt;&gt; from flask_shortcut import Shortcut</span>
 <span class="sd">        &gt;&gt;&gt; app = Flask(__name__)</span>
 <span class="sd">        &gt;&gt;&gt; short = Shortcut(app)</span>
 
@@ -106,17 +102,18 @@
 <span class="sd">        &gt;&gt;&gt; short.wire({&#39;/my_route&#39;: (&#39;short_ok&#39;, 200)})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">app</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Flask</span><span class="p">]</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">Flask</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">env</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_EXCLUDE</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;production&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SHORTCUT_EXCLUSIONS&quot;</span><span class="p">):</span>
+            <span class="n">exclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;SHORTCUT_EXCLUSIONS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exclusions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">app</span><span class="o">.</span><span class="n">env</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting up flask shortcuts in environment &#39;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
             <span class="n">secho</span><span class="p">(</span><span class="s2">&quot;   Route shortcuts enabled. Do not do this in any kind of production environment.&quot;</span><span class="p">,</span> <span class="n">fg</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># make .cut(...) return a wrapper that does nothing</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cut</span> <span class="o">=</span> <span class="n">MethodType</span><span class="p">(</span><span class="k">lambda</span> <span class="n">mapping</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cut</span> <span class="o">=</span> <span class="n">MethodType</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
 <div class="viewcode-block" id="Shortcut.cut"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut.cut">[docs]</a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RESPONSE_ARGS</span><span class="p">]]):</span>
         <span class="sd">&quot;&quot;&quot;Returns route wrappers.</span>
@@ -173,7 +170,7 @@
 
             <span class="k">return</span> <span class="n">decorated</span>
 
-        <span class="c1"># assigning the right decorator depending on mapping types</span>
+        <span class="c1"># assigning the right decorator given the mapping types</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">simple_map</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
