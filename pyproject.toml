@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flask_shortcut"
-version = "0.3.2"
+version = "0.4.0"
 description = "Extension that provides an easy way to add dev-only shortcuts to your routes."
 license = "MIT"
 authors = ["Arne <arecknag@gmail.com>"]

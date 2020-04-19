@@ -5,6 +5,7 @@
 
 .. header-end
 
+
 Project Description
 -------------------
 
@@ -20,11 +21,38 @@ microservice is implemented, which bugs and minor changes it experiences over
 time, testing basic API compatibility gets a lot more manageable.
 
 
+What is a Shortcut?
+-------------------
+
+In the context of this package, a shortcut is a pair of condition -> response.
+The response is `anything that an view function can return`_, and the
+condition depends on one of the three possible mapping contexts.
+
+In the first context, only the response is passed as the shortcut, and the
+condition is assumed to always be true, effectively replacing the route to
+always just return the given response. Showcased with the view ``foo``
+in the usage section.
+
+In the second context, a dictionary that maps strings to responses is passed
+as the shortcut. The strings need to be deserializeable as json, and the
+first one that can be fully matched as a substructure into the request body
+will see its condition as fulfilled, returning its associated response.
+If none of them are valid sub-matches, the original view function will run.
+Showcased with the view ``bar`` in the usage section.
+
+In the third context, either a single function or a list of functions is
+passed as the shortcut. The functions can run any code whatsoever and will
+be executed one after the other as long as they return ``None``, which means
+that their condition is not fulfilled. As soon as one of them returns
+something different, it is passed on as the response. If all of them return
+``None``, the original view function is executed. Showcased with the view
+``baz`` in the usage section.
+
 
 Usage
 -----
 
-You can add shortcuts to your route functions either individually with
+You can add shortcuts to your view functions either individually with
 decorators, or in a single swoop once all routes have been defined. Both ways
 are functionally equivalent.
 
@@ -41,18 +69,24 @@ Applying Shortcuts
     app = Flask(__name__)
     short = Shortcut(app)
 
-    app.route('/foo', methods=['GET'])
-    short.cut(('short_foo', 200))
+    @app.route('/foo', methods=['GET'])
+    @short.cut(('short_foo', 200))
     def foo():
         return 'foo'
 
-    app.route('/bar', methods=['POST'])
-    short.cut({
-        '{"name": "TestUser"}': ('short_bar', 200)},
+    @app.route('/bar', methods=['POST'])
+    @short.cut({
+        '{"name": "TestUser"}': ('short_bar', 200),
         '{"name": "UserTest"}': ('longer_bar', 200),
-    )
+    })
     def bar():
         return 'bar'
+
+    @app.route('/baz', methods=['POST'])
+    @short.cut(lambda: ("json_baz", 200) if "json" in request.mimetype else None)
+    def baz():
+        return 'baz'
+
 
 **With a wire call**
 
@@ -71,6 +105,10 @@ Applying Shortcuts
     def bar():
         return 'bar'
 
+    @app.route('/baz', methods=['POST'])
+    def baz():
+        return 'baz'
+
     Shortcut(app).wire(
         {
              '/foo': ('short_foo', 200),
@@ -78,6 +116,7 @@ Applying Shortcuts
                  '{"name": "TestUser"}': ('short_bar', 200),
                  '{"name": "UserTest"}': ('longer_bar', 200),
              }
+             '/baz': lambda: ("json_baz", 200) if "json" in request.mimetype else None
         }
     )
 
@@ -100,10 +139,14 @@ if it were run with ``FLASK_ENV=test flask run``:
   'short_bar'  # shortcut match
   >>> post('http://127.0.0.1:5000/bar', json={"name": "UserTest", "job": None}).text
   'longer_bar'  # shortcut only needs to be contained for a match
+  >>> post('http://127.0.0.1:5000/baz').text
+  'baz'  # shortcut unsuccessful
+  >>> post('http://127.0.0.1:5000/baz', json={"name": "me"}).text
+  'json_baz'  # shortcut successful
 
 One focus of this package was, that a production deployment would remain
 as ignorant as possible about the existence of shortcuts. While the
-shortcut object is still created, it only delegates the route functions
+shortcut object is still created, it only delegates the view functions
 and no shortcut code has any chance of being run.
 
 
@@ -155,3 +198,5 @@ Project home is `on github`_.
 .. _on github: https://github.com/a-recknagel/Flask-Shortcut
 
 .. _through a file: https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files
+
+.. _anything that an view function can return: https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses

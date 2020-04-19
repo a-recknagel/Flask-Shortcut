@@ -1,17 +1,14 @@
 from typing import Any
 
-from flask import Request
+from flask import request
 import xmltodict
 
 
-def get_request_data(r: Request) -> Any:
+def get_request_data() -> Any:
     """Request data fetcher.
 
     This function inspects the mimetype in order to figure out how the data
     can be represented in a standard python-dictionary form.
-
-    Args:
-        r: The request whose body is going to be parsed.
 
     Returns:
         The data in a form that sticks as close a parsed json object as possible, since
@@ -22,11 +19,11 @@ def get_request_data(r: Request) -> Any:
         Exception: In case of junk data, hard to list what each parser
             decides is best to raise.
     """
-    if "json" in r.mimetype:
-        return r.json
-    if "xml" in r.mimetype:
-        return xmltodict.parse(r.data, dict_constructor=dict)
-    raise ValueError(f"Mimetype '{r.mimetype}' not parsable.")
+    if "json" in request.mimetype:
+        return request.json
+    if "xml" in request.mimetype:
+        return xmltodict.parse(request.data, dict_constructor=dict)
+    raise ValueError(f"Mimetype '{request.mimetype}' not parsable.")
 
 
 def diff(target, sub, path_=None) -> bool:
