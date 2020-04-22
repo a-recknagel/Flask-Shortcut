@@ -11,3 +11,11 @@ Flask-Shortcut documentation
 
 .. include:: ../README.rst
    :start-after: header-end
+
+
+----
+
+Project home is `on github`_.
+
+
+.. _on github: https://github.com/a-recknagel/Flask-Shortcut

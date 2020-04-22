@@ -1,11 +1,12 @@
 from logging import getLogger
-from typing import Union, Tuple, Dict, Any
-from types import MethodType
+from typing import Union, Tuple, Dict, Any, Callable, Optional
+from types import MethodType, FunctionType
 from functools import wraps
+import inspect
 import json
 
 from click import secho
-from flask import request, Flask
+from flask import Flask
 
 from flask_shortcut.util import diff, get_request_data
 
@@ -18,22 +19,30 @@ RESPONSE_ARGS = Tuple[Any, int]
 class Shortcut:
     """Object that handles the shortcut rerouting.
 
-    Calling an instance of this class on a function gives that function the
+    Calling an instance of this class on a view function gives the view an
     option to behave differently in non-production environments. The way in
-    which the behavior may differ is constrained in two possible ways.
+    which the behavior may differ is constrained in three possible ways.
 
     In the first one, only the arguments for a response are passed to the
-    shortcut definition, meaning that the original function is effectively
+    shortcut definition, meaning that the original view is effectively
     disabled and the route will instead just return the shortcut's arguments
     as its only response.
 
     In the second one, any number of shortcut response arguments are mapped
-    to condition-keys. The condition is a string that is used to assert a
-    substructure in requests that reach that route, and will only apply its
-    respective shortcut-response iff that substructure can be matched.
+    to condition-keys. The condition is a json-like string that is used to
+    assert a substructure in request bodies that reach that route, and will
+    only apply its respective shortcut-response iff that substructure can
+    be matched.
+
+    In the third one, a function represents the shortcut and can run
+    arbitrary code to ensure whatever the user deems necessary on the
+    request body, header, etc. Such a shortcut function may not accept
+    arguments and needs to either return None, to signal that the shortcut
+    condition failed and the original logic should be run, or valid
+    response arguments in the form of a tuple.
 
     If none of the condition can be satisfied, the route will run its
-    original logic.
+    original view.
 
     There are two different ways to register shortcuts, one using decorators
     on the target functions before the are decorated as routes, and the
@@ -74,8 +83,8 @@ class Shortcut:
             # make .cut(...) return a wrapper that does nothing
             self.cut = MethodType(lambda _self, mapping: lambda f: f, self)  # type: ignore
 
-    def cut(self, mapping: Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS]]):
-        """Returns route wrappers.
+    def cut(self, mapping: Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS], Callable[[], Optional[RESPONSE_ARGS]]]):
+        """Returns view function wrappers.
 
         Depending on the input argument, a different wrapper will be returned.
         This function can only run in applications that are not listed in the
@@ -89,10 +98,10 @@ class Shortcut:
         def simple_map(f):
             f_name = f"{f.__module__}.{f.__name__}"
             logger.info(f"Adding simple_map shortcut for routing function '{f_name}'.")
+            assert isinstance(mapping, tuple), "Messed up shortcut wiring, abort."  # nosec
 
             @wraps(f)
             def decorated(*_, **__):
-                assert isinstance(mapping, tuple), "Messed up shortcut wiring, abort."  # nosec
                 logger.debug(f"Running shortcut for '{f_name}'.")
 
                 response, status = mapping
@@ -104,19 +113,24 @@ class Shortcut:
         def dict_map(f):
             f_name = f"{f.__module__}.{f.__name__}"
             logger.info(f"Adding dict_map shortcut for routing function '{f_name}'.")
+            assert isinstance(mapping, dict), "Messed up shortcut wiring, abort."  # nosec
+            for s in mapping:
+                try:
+                    json.loads(s)
+                except Exception as e:
+                    raise TypeError(f"'{s}' can't be deserialized into valid json, raises '{str(e)}'.")
 
             @wraps(f)
             def decorated(*args, **kwargs):
-                assert isinstance(mapping, dict), "Messed up shortcut wiring, abort."  # nosec
                 logger.debug(f"Running shortcut for '{f_name}'.")
 
                 for condition, (response, status) in mapping.items():
-                    request_data = get_request_data(request)
+                    request_data = get_request_data()
                     try:
                         sub_resolves = diff(request_data, json.loads(condition))
-                    except TypeError as e:
+                    except TypeError as e_:
                         logger.debug(
-                            f"Couldn't walk '{condition}' in the target request, got error message '{str(e)}'. "
+                            f"Couldn't walk '{condition}' in the target request, got error message '{str(e_)}'. "
                             f"This could mean that the shortcut for this function is not well-defined."
                         )
                         continue
@@ -125,7 +139,31 @@ class Shortcut:
                     return self.app.make_response(response), status
                 else:
                     logger.debug(f"Shortcut conditions couldn't be satisfied, defaulting to actual implementation.")
-                return f(*args, **kwargs)
+                    return f(*args, **kwargs)
+
+            return decorated
+
+        # wrapper for function mappings
+        def func_map(f):
+            f_name = f"{f.__module__}.{f.__name__}"
+            logger.info(f"Adding func_map shortcut for routing function '{f_name}'.")
+            assert isinstance(mapping, (FunctionType, list)), "Messed up shortcut wiring, abort."  # nosec
+            func_list = mapping if isinstance(mapping, list) else [mapping]
+            for func in func_list:
+                assert isinstance(func, FunctionType), "All mappings in a shortcut lists need to be functions."  # nosec
+                assert not inspect.signature(func).parameters, "Mapping functions can't take arguments."  # nosec
+
+            @wraps(f)
+            def decorated(*args, **kwargs):
+                logger.debug(f"Running shortcut for '{f_name}'.")
+
+                for function in func_list:
+                    response = function()
+                    if response is not None:
+                        return response
+                else:
+                    logger.debug(f"Shortcut conditions couldn't be satisfied, defaulting to actual implementation.")
+                    return f(*args, **kwargs)
 
             return decorated
 
@@ -134,17 +172,22 @@ class Shortcut:
             return simple_map
         elif isinstance(mapping, dict):
             return dict_map
+        elif isinstance(mapping, (FunctionType, list)):
+            return func_map
         else:
             raise TypeError(f"'{type(mapping)}' is not a supported mapping type for shortcuts yet.")
 
-    def wire(self, shortcuts=Dict[str, Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS]]]):
+    def wire(
+        self,
+        shortcuts: Dict[str, Union[RESPONSE_ARGS, Dict[str, RESPONSE_ARGS], Callable[[], Optional[RESPONSE_ARGS]]]],
+    ):
         """Manual wiring function.
 
         If you don't want to have the shortcut definitions in your routing
         file for some reason (e.g. there are lots of shortcuts and it would
         make the whole thing hard to read), you can use this function at
-        some point after all routes were registered, and before the server
-        is started.
+        some point after all view functions were registered and before the
+        server is started.
 
         Args:
             shortcuts: A dictionary that maps routes to the mappings that
