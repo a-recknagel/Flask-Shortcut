@@ -97,11 +97,11 @@ Applying Shortcuts
 
     app = Flask(__name__)
 
-    app.route('/foo', methods=['GET'])
+    @app.route('/foo', methods=['GET'])
     def foo():
         return 'foo'
 
-    app.route('/bar', methods=['POST'])
+    @app.route('/bar', methods=['POST'])
     def bar():
         return 'bar'
 
@@ -140,31 +140,30 @@ if it were run with ``FLASK_ENV=test flask run``:
   >>> post('http://127.0.0.1:5000/bar', json={"name": "UserTest", "job": None}).text
   'longer_bar'  # shortcut only needs to be contained for a match
   >>> post('http://127.0.0.1:5000/baz').text
-  'baz'  # shortcut unsuccessful
+  'baz'  # no shortcut match -> the function returned None
   >>> post('http://127.0.0.1:5000/baz', json={"name": "me"}).text
-  'json_baz'  # shortcut successful
+  'json_baz'  # shortcut matched -> the function returned a valid response
 
-One focus of this package was, that a production deployment would remain
+One focus of this package is that a production deployment would remain
 as ignorant as possible about the existence of shortcuts. While the
 shortcut object is still created, it only delegates the view functions
-and no shortcut code has any chance of being run.
+and no shortcut code has any chance of being run or showing up in .
 
 
 Configuration
 -------------
 
-By default, shortcuts will only be applied when ``FLASK_ENV`` is set to
-something different than the default setting ``production``. You can
-extend that list through the ``SHORTCUT_EXCLUSIONS`` config setting,
-either by adding it to your app's config before creating any Shortcut
-objects, or preferably by setting up the whole config `through a file`_.
+Shortcuts will only be applied when ``FLASK_ENV`` is set to something
+different from its default setting, ``production``. You can extend that list
+through the ``SHORTCUT_EXCLUSIONS`` config setting, either by adding it to
+your app's config before creating any Shortcut objects, or preferably by
+setting up the whole config `with a file`_.
 
-Possible values for it are all environments other than ``production`` that
-you want to block separated by commas, for example ``staging,master``.
+Possible values for it are all environments that you want to block other
+than ``production`` separated by commas. For example ``staging,master`` will
+block the envs ``production``, ``staging``, and ``master`` from receiving
+shortcuts.
 
-----
-
-Project home is `on github`_.
 
 .. |Logo| image:: https://user-images.githubusercontent.com/2063412/79631833-c1b39400-815b-11ea-90da-d9264420ef68.png
    :alt: Logo
@@ -195,8 +194,6 @@ Project home is `on github`_.
    :alt: Any color you want
    :target: https://black.readthedocs.io/en/stable/
 
-.. _on github: https://github.com/a-recknagel/Flask-Shortcut
-
-.. _through a file: https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files
+.. _with a file: https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files
 
 .. _anything that an view function can return: https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses
