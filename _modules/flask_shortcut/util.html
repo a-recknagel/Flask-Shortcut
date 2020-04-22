@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>flask_shortcut.util &#8212; Flask-Shortcut 0.3.2 documentation</title>
+    <title>flask_shortcut.util &#8212; Flask-Shortcut 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -28,7 +28,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -41,18 +41,15 @@
   <h1>Source code for flask_shortcut.util</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 <span class="kn">import</span> <span class="nn">xmltodict</span>
 
 
-<div class="viewcode-block" id="get_request_data"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.get_request_data">[docs]</a><span class="k">def</span> <span class="nf">get_request_data</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<div class="viewcode-block" id="get_request_data"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.get_request_data">[docs]</a><span class="k">def</span> <span class="nf">get_request_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Request data fetcher.</span>
 
 <span class="sd">    This function inspects the mimetype in order to figure out how the data</span>
 <span class="sd">    can be represented in a standard python-dictionary form.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        r: The request whose body is going to be parsed.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The data in a form that sticks as close a parsed json object as possible, since</span>
@@ -63,11 +60,11 @@
 <span class="sd">        Exception: In case of junk data, hard to list what each parser</span>
 <span class="sd">            decides is best to raise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;json&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span>
-    <span class="k">if</span> <span class="s2">&quot;xml&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dict_constructor</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mimetype &#39;</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">mimetype</span><span class="si">}</span><span class="s2">&#39; not parsable.&quot;</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="s2">&quot;json&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
+    <span class="k">if</span> <span class="s2">&quot;xml&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">mimetype</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xmltodict</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dict_constructor</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mimetype &#39;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">mimetype</span><span class="si">}</span><span class="s2">&#39; not parsable.&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="diff"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.util.diff">[docs]</a><span class="k">def</span> <span class="nf">diff</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">path_</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

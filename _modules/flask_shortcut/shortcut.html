@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>flask_shortcut.shortcut &#8212; Flask-Shortcut 0.3.2 documentation</title>
+    <title>flask_shortcut.shortcut &#8212; Flask-Shortcut 0.4.0 documentation</title>
     <link rel="stylesheet" href="../../_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -28,7 +28,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.3.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Flask-Shortcut 0.4.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -40,13 +40,14 @@
             
   <h1>Source code for flask_shortcut.shortcut</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">MethodType</span><span class="p">,</span> <span class="n">FunctionType</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">from</span> <span class="nn">click</span> <span class="kn">import</span> <span class="n">secho</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">Flask</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 
 <span class="kn">from</span> <span class="nn">flask_shortcut.util</span> <span class="kn">import</span> <span class="n">diff</span><span class="p">,</span> <span class="n">get_request_data</span>
 
@@ -59,22 +60,30 @@
 <div class="viewcode-block" id="Shortcut"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut">[docs]</a><span class="k">class</span> <span class="nc">Shortcut</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Object that handles the shortcut rerouting.</span>
 
-<span class="sd">    Calling an instance of this class on a function gives that function the</span>
+<span class="sd">    Calling an instance of this class on a view function gives the view an</span>
 <span class="sd">    option to behave differently in non-production environments. The way in</span>
-<span class="sd">    which the behavior may differ is constrained in two possible ways.</span>
+<span class="sd">    which the behavior may differ is constrained in three possible ways.</span>
 
 <span class="sd">    In the first one, only the arguments for a response are passed to the</span>
-<span class="sd">    shortcut definition, meaning that the original function is effectively</span>
+<span class="sd">    shortcut definition, meaning that the original view is effectively</span>
 <span class="sd">    disabled and the route will instead just return the shortcut&#39;s arguments</span>
 <span class="sd">    as its only response.</span>
 
 <span class="sd">    In the second one, any number of shortcut response arguments are mapped</span>
-<span class="sd">    to condition-keys. The condition is a string that is used to assert a</span>
-<span class="sd">    substructure in requests that reach that route, and will only apply its</span>
-<span class="sd">    respective shortcut-response iff that substructure can be matched.</span>
+<span class="sd">    to condition-keys. The condition is a json-like string that is used to</span>
+<span class="sd">    assert a substructure in request bodies that reach that route, and will</span>
+<span class="sd">    only apply its respective shortcut-response iff that substructure can</span>
+<span class="sd">    be matched.</span>
+
+<span class="sd">    In the third one, a function represents the shortcut and can run</span>
+<span class="sd">    arbitrary code to ensure whatever the user deems necessary on the</span>
+<span class="sd">    request body, header, etc. Such a shortcut function may not accept</span>
+<span class="sd">    arguments and needs to either return None, to signal that the shortcut</span>
+<span class="sd">    condition failed and the original logic should be run, or valid</span>
+<span class="sd">    response arguments in the form of a tuple.</span>
 
 <span class="sd">    If none of the condition can be satisfied, the route will run its</span>
-<span class="sd">    original logic.</span>
+<span class="sd">    original view.</span>
 
 <span class="sd">    There are two different ways to register shortcuts, one using decorators</span>
 <span class="sd">    on the target functions before the are decorated as routes, and the</span>
@@ -115,8 +124,8 @@
             <span class="c1"># make .cut(...) return a wrapper that does nothing</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cut</span> <span class="o">=</span> <span class="n">MethodType</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
-<div class="viewcode-block" id="Shortcut.cut"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut.cut">[docs]</a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RESPONSE_ARGS</span><span class="p">]]):</span>
-        <span class="sd">&quot;&quot;&quot;Returns route wrappers.</span>
+<div class="viewcode-block" id="Shortcut.cut"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut.cut">[docs]</a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RESPONSE_ARGS</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">]]]):</span>
+        <span class="sd">&quot;&quot;&quot;Returns view function wrappers.</span>
 
 <span class="sd">        Depending on the input argument, a different wrapper will be returned.</span>
 <span class="sd">        This function can only run in applications that are not listed in the</span>
@@ -130,10 +139,10 @@
         <span class="k">def</span> <span class="nf">simple_map</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
             <span class="n">f_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding simple_map shortcut for routing function &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">),</span> <span class="s2">&quot;Messed up shortcut wiring, abort.&quot;</span>  <span class="c1"># nosec</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">),</span> <span class="s2">&quot;Messed up shortcut wiring, abort.&quot;</span>  <span class="c1"># nosec</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running shortcut for &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
 
                 <span class="n">response</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mapping</span>
@@ -145,19 +154,24 @@
         <span class="k">def</span> <span class="nf">dict_map</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
             <span class="n">f_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding dict_map shortcut for routing function &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;Messed up shortcut wiring, abort.&quot;</span>  <span class="c1"># nosec</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&#39; can&#39;t be deserialized into valid json, raises &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
 
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;Messed up shortcut wiring, abort.&quot;</span>  <span class="c1"># nosec</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running shortcut for &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">condition</span><span class="p">,</span> <span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">request_data</span> <span class="o">=</span> <span class="n">get_request_data</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                    <span class="n">request_data</span> <span class="o">=</span> <span class="n">get_request_data</span><span class="p">()</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">sub_resolves</span> <span class="o">=</span> <span class="n">diff</span><span class="p">(</span><span class="n">request_data</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">condition</span><span class="p">))</span>
-                    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e_</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t walk &#39;</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">&#39; in the target request, got error message &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Couldn&#39;t walk &#39;</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">&#39; in the target request, got error message &#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e_</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
                             <span class="sa">f</span><span class="s2">&quot;This could mean that the shortcut for this function is not well-defined.&quot;</span>
                         <span class="p">)</span>
                         <span class="k">continue</span>
@@ -166,7 +180,31 @@
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">make_response</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">status</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shortcut conditions couldn&#39;t be satisfied, defaulting to actual implementation.&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">decorated</span>
+
+        <span class="c1"># wrapper for function mappings</span>
+        <span class="k">def</span> <span class="nf">func_map</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="n">f_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding func_map shortcut for routing function &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="p">(</span><span class="n">FunctionType</span><span class="p">,</span> <span class="nb">list</span><span class="p">)),</span> <span class="s2">&quot;Messed up shortcut wiring, abort.&quot;</span>  <span class="c1"># nosec</span>
+            <span class="n">func_list</span> <span class="o">=</span> <span class="n">mapping</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">mapping</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">func_list</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">),</span> <span class="s2">&quot;All mappings in a shortcut lists need to be functions.&quot;</span>  <span class="c1"># nosec</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="s2">&quot;Mapping functions can&#39;t take arguments.&quot;</span>  <span class="c1"># nosec</span>
+
+            <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running shortcut for &#39;</span><span class="si">{</span><span class="n">f_name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">func_list</span><span class="p">:</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="n">function</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">response</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shortcut conditions couldn&#39;t be satisfied, defaulting to actual implementation.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">decorated</span>
 
@@ -175,17 +213,22 @@
             <span class="k">return</span> <span class="n">simple_map</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">dict_map</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="p">(</span><span class="n">FunctionType</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">func_map</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; is not a supported mapping type for shortcuts yet.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Shortcut.wire"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut.wire">[docs]</a>    <span class="k">def</span> <span class="nf">wire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortcuts</span><span class="o">=</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RESPONSE_ARGS</span><span class="p">]]]):</span>
+<div class="viewcode-block" id="Shortcut.wire"><a class="viewcode-back" href="../../autodoc/flask_shortcut.html#flask_shortcut.Shortcut.wire">[docs]</a>    <span class="k">def</span> <span class="nf">wire</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">shortcuts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">RESPONSE_ARGS</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RESPONSE_ARGS</span><span class="p">]]]],</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Manual wiring function.</span>
 
 <span class="sd">        If you don&#39;t want to have the shortcut definitions in your routing</span>
 <span class="sd">        file for some reason (e.g. there are lots of shortcuts and it would</span>
 <span class="sd">        make the whole thing hard to read), you can use this function at</span>
-<span class="sd">        some point after all routes were registered, and before the server</span>
-<span class="sd">        is started.</span>
+<span class="sd">        some point after all view functions were registered and before the</span>
+<span class="sd">        server is started.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            shortcuts: A dictionary that maps routes to the mappings that</span>

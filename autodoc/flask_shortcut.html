@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>flask_shortcut package &#8212; Flask-Shortcut 0.3.2 documentation</title>
+    <title>flask_shortcut package &#8212; Flask-Shortcut 0.4.0 documentation</title>
     <link rel="stylesheet" href="../_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="../index.html" title="Flask-Shortcut documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Flask-Shortcut 0.3.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask-Shortcut 0.4.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,19 +48,26 @@
 <em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object that handles the shortcut rerouting.</p>
-<p>Calling an instance of this class on a function gives that function the
+<p>Calling an instance of this class on a view function gives the view an
 option to behave differently in non-production environments. The way in
-which the behavior may differ is constrained in two possible ways.</p>
+which the behavior may differ is constrained in three possible ways.</p>
 <p>In the first one, only the arguments for a response are passed to the
-shortcut definition, meaning that the original function is effectively
+shortcut definition, meaning that the original view is effectively
 disabled and the route will instead just return the shortcut’s arguments
 as its only response.</p>
 <p>In the second one, any number of shortcut response arguments are mapped
-to condition-keys. The condition is a string that is used to assert a
-substructure in requests that reach that route, and will only apply its
-respective shortcut-response iff that substructure can be matched.</p>
+to condition-keys. The condition is a json-like string that is used to
+assert a substructure in request bodies that reach that route, and will
+only apply its respective shortcut-response iff that substructure can
+be matched.</p>
+<p>In the third one, a function represents the shortcut and can run
+arbitrary code to ensure whatever the user deems necessary on the
+request body, header, etc. Such a shortcut function may not accept
+arguments and needs to either return None, to signal that the shortcut
+condition failed and the original logic should be run, or valid
+response arguments in the form of a tuple.</p>
 <p>If none of the condition can be satisfied, the route will run its
-original logic.</p>
+original view.</p>
 <p>There are two different ways to register shortcuts, one using decorators
 on the target functions before the are decorated as routes, and the
 other by running the a single wire call after all routes were added.</p>
@@ -92,8 +99,8 @@ other by running the a single wire call after all routes were added.</p>
 </div>
 <dl class="py method">
 <dt id="flask_shortcut.Shortcut.cut">
-<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns route wrappers.</p>
+<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns view function wrappers.</p>
 <p>Depending on the input argument, a different wrapper will be returned.
 This function can only run in applications that are not listed in the
 <cite>_EXCLUDE</cite> list.</p>
@@ -107,13 +114,13 @@ offered under which type of condition.</p>
 
 <dl class="py method">
 <dt id="flask_shortcut.Shortcut.wire">
-<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="o">=</span><span class="default_value">typing.Dict[str, typing.Union[typing.Tuple[typing.Any, int], typing.Dict[str, typing.Tuple[typing.Any, int]]]]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manual wiring function.</p>
 <p>If you don’t want to have the shortcut definitions in your routing
 file for some reason (e.g. there are lots of shortcuts and it would
 make the whole thing hard to read), you can use this function at
-some point after all routes were registered, and before the server
-is started.</p>
+some point after all view functions were registered and before the
+server is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>shortcuts</strong> – A dictionary that maps routes to the mappings that
@@ -140,19 +147,26 @@ would have been used as arguments in the shortcut decorator.</p>
 <em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.shortcut.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object that handles the shortcut rerouting.</p>
-<p>Calling an instance of this class on a function gives that function the
+<p>Calling an instance of this class on a view function gives the view an
 option to behave differently in non-production environments. The way in
-which the behavior may differ is constrained in two possible ways.</p>
+which the behavior may differ is constrained in three possible ways.</p>
 <p>In the first one, only the arguments for a response are passed to the
-shortcut definition, meaning that the original function is effectively
+shortcut definition, meaning that the original view is effectively
 disabled and the route will instead just return the shortcut’s arguments
 as its only response.</p>
 <p>In the second one, any number of shortcut response arguments are mapped
-to condition-keys. The condition is a string that is used to assert a
-substructure in requests that reach that route, and will only apply its
-respective shortcut-response iff that substructure can be matched.</p>
+to condition-keys. The condition is a json-like string that is used to
+assert a substructure in request bodies that reach that route, and will
+only apply its respective shortcut-response iff that substructure can
+be matched.</p>
+<p>In the third one, a function represents the shortcut and can run
+arbitrary code to ensure whatever the user deems necessary on the
+request body, header, etc. Such a shortcut function may not accept
+arguments and needs to either return None, to signal that the shortcut
+condition failed and the original logic should be run, or valid
+response arguments in the form of a tuple.</p>
 <p>If none of the condition can be satisfied, the route will run its
-original logic.</p>
+original view.</p>
 <p>There are two different ways to register shortcuts, one using decorators
 on the target functions before the are decorated as routes, and the
 other by running the a single wire call after all routes were added.</p>
@@ -184,8 +198,8 @@ other by running the a single wire call after all routes were added.</p>
 </div>
 <dl class="py method">
 <dt id="flask_shortcut.shortcut.Shortcut.cut">
-<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns route wrappers.</p>
+<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns view function wrappers.</p>
 <p>Depending on the input argument, a different wrapper will be returned.
 This function can only run in applications that are not listed in the
 <cite>_EXCLUDE</cite> list.</p>
@@ -199,13 +213,13 @@ offered under which type of condition.</p>
 
 <dl class="py method">
 <dt id="flask_shortcut.shortcut.Shortcut.wire">
-<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="o">=</span><span class="default_value">typing.Dict[str, typing.Union[typing.Tuple[typing.Any, int], typing.Dict[str, typing.Tuple[typing.Any, int]]]]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manual wiring function.</p>
 <p>If you don’t want to have the shortcut definitions in your routing
 file for some reason (e.g. there are lots of shortcuts and it would
 make the whole thing hard to read), you can use this function at
-some point after all routes were registered, and before the server
-is started.</p>
+some point after all view functions were registered and before the
+server is started.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>shortcuts</strong> – A dictionary that maps routes to the mappings that
@@ -243,23 +257,20 @@ would have been used as arguments in the shortcut decorator.</p>
 
 <dl class="py function">
 <dt id="flask_shortcut.util.get_request_data">
-<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">get_request_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">r</span><span class="p">:</span> <span class="n">flask.wrappers.Request</span></em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="../_modules/flask_shortcut/util.html#get_request_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.get_request_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">get_request_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="../_modules/flask_shortcut/util.html#get_request_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.get_request_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request data fetcher.</p>
 <p>This function inspects the mimetype in order to figure out how the data
 can be represented in a standard python-dictionary form.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>r</strong> – The request whose body is going to be parsed.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>The data in a form that sticks as close a parsed json object as possible, since</dt><dd><p>that is the format in which the mappings expect to be passed by.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>ValueError</strong> – In case of unexpected request data formats.</p></li>
 <li><p><strong>Exception</strong> – In case of junk data, hard to list what each parser
     decides is best to raise.</p></li>

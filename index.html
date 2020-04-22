@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Flask-Shortcut documentation &#8212; Flask-Shortcut 0.3.2 documentation</title>
+    <title>Flask-Shortcut documentation &#8212; Flask-Shortcut 0.4.0 documentation</title>
     <link rel="stylesheet" href="_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -32,7 +32,7 @@
         <li class="right" >
           <a href="autodoc/flask_shortcut.html" title="flask_shortcut package"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.3.2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.4.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -68,9 +68,32 @@ receive predictable responses. By skipping over the details of how the
 microservice is implemented, which bugs and minor changes it experiences over
 time, testing basic API compatibility gets a lot more manageable.</p>
 </div>
+<div class="section" id="what-is-a-shortcut">
+<h2>What is a Shortcut?<a class="headerlink" href="#what-is-a-shortcut" title="Permalink to this headline">¶</a></h2>
+<p>In the context of this package, a shortcut is a pair of condition -&gt; response.
+The response is <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses">anything that an view function can return</a>, and the
+condition depends on one of the three possible mapping contexts.</p>
+<p>In the first context, only the response is passed as the shortcut, and the
+condition is assumed to always be true, effectively replacing the route to
+always just return the given response. Showcased with the view <code class="docutils literal notranslate"><span class="pre">foo</span></code>
+in the usage section.</p>
+<p>In the second context, a dictionary that maps strings to responses is passed
+as the shortcut. The strings need to be deserializeable as json, and the
+first one that can be fully matched as a substructure into the request body
+will see its condition as fulfilled, returning its associated response.
+If none of them are valid sub-matches, the original view function will run.
+Showcased with the view <code class="docutils literal notranslate"><span class="pre">bar</span></code> in the usage section.</p>
+<p>In the third context, either a single function or a list of functions is
+passed as the shortcut. The functions can run any code whatsoever and will
+be executed one after the other as long as they return <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means
+that their condition is not fulfilled. As soon as one of them returns
+something different, it is passed on as the response. If all of them return
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, the original view function is executed. Showcased with the view
+<code class="docutils literal notranslate"><span class="pre">baz</span></code> in the usage section.</p>
+</div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>You can add shortcuts to your route functions either individually with
+<p>You can add shortcuts to your view functions either individually with
 decorators, or in a single swoop once all routes have been defined. Both ways
 are functionally equivalent.</p>
 </div>
@@ -84,18 +107,23 @@ are functionally equivalent.</p>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">short</span> <span class="o">=</span> <span class="n">Shortcut</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">((</span><span class="s1">&#39;short_foo&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="nd">@short</span><span class="o">.</span><span class="n">cut</span><span class="p">((</span><span class="s1">&#39;short_foo&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
 <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;foo&#39;</span>
 
-<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="n">short</span><span class="o">.</span><span class="n">cut</span><span class="p">({</span>
-    <span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)},</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nd">@short</span><span class="o">.</span><span class="n">cut</span><span class="p">({</span>
+    <span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
     <span class="s1">&#39;{&quot;name&quot;: &quot;UserTest&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longer_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
-<span class="p">)</span>
+<span class="p">})</span>
 <span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;bar&#39;</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/baz&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nd">@short</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;json_baz&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;json&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">mimetype</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">baz</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;baz&#39;</span>
 </pre></div>
 </div>
 <p><strong>With a wire call</strong></p>
@@ -104,13 +132,17 @@ are functionally equivalent.</p>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/foo&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;foo&#39;</span>
 
-<span class="n">app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/bar&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;bar&#39;</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/baz&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">baz</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;baz&#39;</span>
 
 <span class="n">Shortcut</span><span class="p">(</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">wire</span><span class="p">(</span>
     <span class="p">{</span>
@@ -119,6 +151,7 @@ are functionally equivalent.</p>
              <span class="s1">&#39;{&quot;name&quot;: &quot;TestUser&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;short_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
              <span class="s1">&#39;{&quot;name&quot;: &quot;UserTest&quot;}&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longer_bar&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
          <span class="p">}</span>
+         <span class="s1">&#39;/baz&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;json_baz&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;json&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">mimetype</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
@@ -138,21 +171,27 @@ if it were run with <code class="docutils literal notranslate"><span class="pre"
 <span class="go">&#39;short_bar&#39;  # shortcut match</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/bar&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;UserTest&quot;</span><span class="p">,</span> <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
 <span class="go">&#39;longer_bar&#39;  # shortcut only needs to be contained for a match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/baz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;baz&#39;  # no shortcut match -&gt; the function returned None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:5000/baz&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;me&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;json_baz&#39;  # shortcut matched -&gt; the function returned a valid response</span>
 </pre></div>
 </div>
-<p>One focus of this package was, that a production deployment would remain
+<p>One focus of this package is that a production deployment would remain
 as ignorant as possible about the existence of shortcuts. While the
-shortcut object is still created, it only delegates the route functions
-and no shortcut code has any chance of being run.</p>
+shortcut object is still created, it only delegates the view functions
+and no shortcut code has any chance of being run or showing up in .</p>
 <div class="section" id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>By default, shortcuts will only be applied when <code class="docutils literal notranslate"><span class="pre">FLASK_ENV</span></code> is set to
-something different than the default setting <code class="docutils literal notranslate"><span class="pre">production</span></code>. You can
-extend that list through the <code class="docutils literal notranslate"><span class="pre">SHORTCUT_EXCLUSIONS</span></code> config setting,
-either by adding it to your app’s config before creating any Shortcut
-objects, or preferably by setting up the whole config <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files">through a file</a>.</p>
-<p>Possible values for it are all environments other than <code class="docutils literal notranslate"><span class="pre">production</span></code> that
-you want to block separated by commas, for example <code class="docutils literal notranslate"><span class="pre">staging,master</span></code>.</p>
+<p>Shortcuts will only be applied when <code class="docutils literal notranslate"><span class="pre">FLASK_ENV</span></code> is set to something
+different from its default setting, <code class="docutils literal notranslate"><span class="pre">production</span></code>. You can extend that list
+through the <code class="docutils literal notranslate"><span class="pre">SHORTCUT_EXCLUSIONS</span></code> config setting, either by adding it to
+your app’s config before creating any Shortcut objects, or preferably by
+setting up the whole config <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files">with a file</a>.</p>
+<p>Possible values for it are all environments that you want to block other
+than <code class="docutils literal notranslate"><span class="pre">production</span></code> separated by commas. For example <code class="docutils literal notranslate"><span class="pre">staging,master</span></code> will
+block the envs <code class="docutils literal notranslate"><span class="pre">production</span></code>, <code class="docutils literal notranslate"><span class="pre">staging</span></code>, and <code class="docutils literal notranslate"><span class="pre">master</span></code> from receiving
+shortcuts.</p>
 <hr class="docutils" />
 <p>Project home is <a class="reference external" href="https://github.com/a-recknagel/Flask-Shortcut">on github</a>.</p>
 </div>
@@ -176,6 +215,7 @@ you want to block separated by commas, for example <code class="docutils literal
   <ul>
 <li><a class="reference internal" href="#">Flask-Shortcut documentation</a><ul>
 <li><a class="reference internal" href="#project-description">Project Description</a></li>
+<li><a class="reference internal" href="#what-is-a-shortcut">What is a Shortcut?</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
