@@ -23,10 +23,10 @@ def get_request_data() -> Any:
         return request.json
     if "xml" in request.mimetype:
         return xmltodict.parse(request.data, dict_constructor=dict)
-    raise ValueError(f"Mimetype '{request.mimetype}' not parsable.")
+    raise ValueError(f"Mimetype '{request.mimetype}' not supported.")
 
 
-def diff(target, sub, path_=None) -> bool:
+def diff(target, sub, *, path_=None) -> bool:
     """Simple recursive asymmetric diff function on json-like data structures.
 
     Args:
@@ -50,14 +50,14 @@ def diff(target, sub, path_=None) -> bool:
     if isinstance(sub, list):
         for n, s_elem in enumerate(sub):
             for t_elem in target:
-                if diff(t_elem, s_elem, [*path_, n]):
+                if diff(t_elem, s_elem, path_=[*path_, n]):
                     break
             else:
                 return False
         return True
     elif isinstance(sub, dict):
         for s_key in sub:
-            if s_key in target and diff(target[s_key], sub[s_key], [*path_, s_key]):
+            if s_key in target and diff(target[s_key], sub[s_key], path_=[*path_, s_key]):
                 continue
             return False
         return True

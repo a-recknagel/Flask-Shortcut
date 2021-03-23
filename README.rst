@@ -1,6 +1,6 @@
 |Logo|
 
-|CI_CD| |pyPI| |Docs| |License| |py_versions| |Style|
+|CI_CD| |Docs| |pyPI| |py_versions| |License| |Style|
 
 
 .. header-end
@@ -20,12 +20,13 @@ receive predictable responses. By skipping over the details of how the
 microservice is implemented, which bugs and minor changes it experiences over
 time, testing basic API compatibility gets a lot more manageable.
 
+In a test-engineering context, it would be considered a "fake".
 
 What is a Shortcut?
 -------------------
 
-In the context of this package, a shortcut is a pair of condition -> response.
-The response is `anything that an view function can return`_, and the
+In the context of this package, a shortcut is a condition-and-response pair.
+The response is `anything that a view function can return`_, and the
 condition depends on one of the three possible mapping contexts.
 
 In the first context, only the response is passed as the shortcut, and the
@@ -147,7 +148,8 @@ if it were run with ``FLASK_ENV=test flask run``:
 One focus of this package is that a production deployment would remain
 as ignorant as possible about the existence of shortcuts. While the
 shortcut object is still created, it only delegates the view functions
-and no shortcut code has any chance of being run or showing up in .
+and no shortcut code has any chance of being executed, or showing up in
+stack traces.
 
 
 Configuration
@@ -196,4 +198,4 @@ shortcuts.
 
 .. _with a file: https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-files
 
-.. _anything that an view function can return: https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses
+.. _anything that a view function can return: https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses

@@ -14,9 +14,7 @@ jobs:
           python-version: '3.6'
           architecture: 'x64'
       - uses: actions/checkout@v1
-      - uses: dschep/install-poetry-action@v1.3
-        with:
-          version: 1.0.5
+      - uses: snok/install-poetry@v1.1.2
 
       # run CI pipeline
       - name: Installing package
@@ -25,24 +23,24 @@ jobs:
         run: poetry build
       - name: Building documentation
         run: |
-          sphinx-apidoc --no-toc --module-first -o docs/autodoc flask_shortcut
-          sphinx-build docs/ public/ -b html
+          poetry run sphinx-apidoc --no-toc --module-first -o docs/autodoc flask_shortcut
+          poetry run sphinx-build docs/ public/ -b html
       - name: Make sure the project is black
-        run: black --check flask_shortcut/ tests/
+        run: poetry run black --check flask_shortcut/ tests/
       - name: Static typing test with mypy
-        run: mypy flask_shortcut/
+        run: poetry run mypy flask_shortcut/
       - name: Running test suite
-        run: pytest tests/
+        run: poetry run pytest tests/
       - name: Running test coverage
-        run: pytest tests/ --cov
+        run: poetry run pytest tests/ --cov
       - name: Test dependencies for known issues
         run: |
           poetry export -f requirements.txt -o requirements.txt
-          safety check -r requirements.txt
+          poetry run safety check -r requirements.txt
       - name: Test source code for potential exploits
-        run: bandit -r flask_shortcut/
+        run: poetry run bandit -r flask_shortcut/
       - name: Make sure all used licenses are fine
-        run: liccheck -s strategy.ini
+        run: poetry run liccheck
 
       # upload artifacts
       - uses: actions/upload-artifact@v1
@@ -76,9 +74,7 @@ jobs:
         with:
           python-version: '3.6'
           architecture: 'x64'
-      - uses: dschep/install-poetry-action@v1.3
-        with:
-          version: 1.0.5
+      - uses: snok/install-poetry@v1.1.2
       - uses: actions/checkout@v1  # easiest way to get to the pyproject.toml file
       - uses: actions/download-artifact@v1
         with:
