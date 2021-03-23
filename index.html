@@ -4,15 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flask-Shortcut documentation &#8212; Flask-Shortcut 0.4.0 documentation</title>
-    <link rel="stylesheet" href="_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flask.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="shortcut icon" href="_static/shortcut-logo-favicon.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,7 +32,8 @@
         <li class="right" >
           <a href="autodoc/flask_shortcut.html" title="flask_shortcut package"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.4.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">Flask-Shortcut 0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Flask-Shortcut documentation</a></li> 
       </ul>
     </div>  
 
@@ -67,11 +68,12 @@ freely chose how their requests are formed gain a lot from being able to
 receive predictable responses. By skipping over the details of how the
 microservice is implemented, which bugs and minor changes it experiences over
 time, testing basic API compatibility gets a lot more manageable.</p>
+<p>In a test-engineering context, it would be considered a “fake”.</p>
 </div>
 <div class="section" id="what-is-a-shortcut">
 <h2>What is a Shortcut?<a class="headerlink" href="#what-is-a-shortcut" title="Permalink to this headline">¶</a></h2>
-<p>In the context of this package, a shortcut is a pair of condition -&gt; response.
-The response is <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses">anything that an view function can return</a>, and the
+<p>In the context of this package, a shortcut is a condition-and-response pair.
+The response is <a class="reference external" href="https://flask.palletsprojects.com/en/1.1.x/quickstart/#about-responses">anything that a view function can return</a>, and the
 condition depends on one of the three possible mapping contexts.</p>
 <p>In the first context, only the response is passed as the shortcut, and the
 condition is assumed to always be true, effectively replacing the route to
@@ -180,7 +182,8 @@ if it were run with <code class="docutils literal notranslate"><span class="pre"
 <p>One focus of this package is that a production deployment would remain
 as ignorant as possible about the existence of shortcuts. While the
 shortcut object is still created, it only delegates the view functions
-and no shortcut code has any chance of being run or showing up in .</p>
+and no shortcut code has any chance of being executed, or showing up in
+stack traces.</p>
 <div class="section" id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>Shortcuts will only be applied when <code class="docutils literal notranslate"><span class="pre">FLASK_ENV</span></code> is set to something
@@ -198,6 +201,7 @@ shortcuts.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -251,7 +255,7 @@ shortcuts.</p>
   
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Arne.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
     </div>
   <script src="_static/version_warning_offset.js"></script>
 

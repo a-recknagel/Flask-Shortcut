@@ -4,15 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>flask_shortcut package &#8212; Flask-Shortcut 0.4.0 documentation</title>
-    <link rel="stylesheet" href="../_static/flask.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/flask.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="shortcut icon" href="../_static/shortcut-logo-favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -32,7 +32,8 @@
         <li class="right" >
           <a href="../index.html" title="Flask-Shortcut documentation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Flask-Shortcut 0.4.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Flask-Shortcut 0.4.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">flask_shortcut package</a></li> 
       </ul>
     </div>  
 
@@ -45,7 +46,7 @@
 <span id="flask-shortcut-package"></span><h1>flask_shortcut package<a class="headerlink" href="#module-flask_shortcut" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="flask_shortcut.Shortcut">
-<em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">flask_shortcut.</span></code><code class="sig-name descname"><span class="pre">Shortcut</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">flask.app.Flask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object that handles the shortcut rerouting.</p>
 <p>Calling an instance of this class on a view function gives the view an
@@ -99,7 +100,7 @@ other by running the a single wire call after all routes were added.</p>
 </div>
 <dl class="py method">
 <dt id="flask_shortcut.Shortcut.cut">
-<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cut</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns view function wrappers.</p>
 <p>Depending on the input argument, a different wrapper will be returned.
 This function can only run in applications that are not listed in the
@@ -114,7 +115,7 @@ offered under which type of condition.</p>
 
 <dl class="py method">
 <dt id="flask_shortcut.Shortcut.wire">
-<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">wire</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shortcuts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manual wiring function.</p>
 <p>If you don’t want to have the shortcut definitions in your routing
 file for some reason (e.g. there are lots of shortcuts and it would
@@ -138,13 +139,13 @@ would have been used as arguments in the shortcut decorator.</p>
 <span id="flask-shortcut-shortcut-module"></span><h2>flask_shortcut.shortcut module<a class="headerlink" href="#module-flask_shortcut.shortcut" title="Permalink to this headline">¶</a></h2>
 <dl class="py attribute">
 <dt id="flask_shortcut.shortcut.RESPONSE_ARGS">
-<code class="sig-prename descclassname">flask_shortcut.shortcut.</code><code class="sig-name descname">RESPONSE_ARGS</code><a class="headerlink" href="#flask_shortcut.shortcut.RESPONSE_ARGS" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">typing.Tuple</span></code></p>
+<code class="sig-prename descclassname"><span class="pre">flask_shortcut.shortcut.</span></code><code class="sig-name descname"><span class="pre">RESPONSE_ARGS</span></code><a class="headerlink" href="#flask_shortcut.shortcut.RESPONSE_ARGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</p>
 </dd></dl>
 
 <dl class="py class">
 <dt id="flask_shortcut.shortcut.Shortcut">
-<em class="property">class </em><code class="sig-prename descclassname">flask_shortcut.shortcut.</code><code class="sig-name descname">Shortcut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span><span class="p">:</span> <span class="n">flask.app.Flask</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">flask_shortcut.shortcut.</span></code><code class="sig-name descname"><span class="pre">Shortcut</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">flask.app.Flask</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object that handles the shortcut rerouting.</p>
 <p>Calling an instance of this class on a view function gives the view an
@@ -198,7 +199,7 @@ other by running the a single wire call after all routes were added.</p>
 </div>
 <dl class="py method">
 <dt id="flask_shortcut.shortcut.Shortcut.cut">
-<code class="sig-name descname">cut</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cut</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.cut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns view function wrappers.</p>
 <p>Depending on the input argument, a different wrapper will be returned.
 This function can only run in applications that are not listed in the
@@ -213,7 +214,7 @@ offered under which type of condition.</p>
 
 <dl class="py method">
 <dt id="flask_shortcut.shortcut.Shortcut.wire">
-<code class="sig-name descname">wire</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shortcuts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>Union<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>Callable<span class="p">[</span>Optional<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">, </span>int<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">wire</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shortcuts</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/flask_shortcut/shortcut.html#Shortcut.wire"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.shortcut.Shortcut.wire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manual wiring function.</p>
 <p>If you don’t want to have the shortcut definitions in your routing
 file for some reason (e.g. there are lots of shortcuts and it would
@@ -235,14 +236,14 @@ would have been used as arguments in the shortcut decorator.</p>
 <span id="flask-shortcut-util-module"></span><h2>flask_shortcut.util module<a class="headerlink" href="#module-flask_shortcut.util" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="flask_shortcut.util.diff">
-<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">diff</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">target</span></em>, <em class="sig-param"><span class="n">sub</span></em>, <em class="sig-param"><span class="n">path_</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/flask_shortcut/util.html#diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.diff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">flask_shortcut.util.</span></code><code class="sig-name descname"><span class="pre">diff</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="reference internal" href="../_modules/flask_shortcut/util.html#diff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.util.diff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple recursive asymmetric diff function on json-like data structures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>target</strong> – The data container in which we want to find a subtree.</p></li>
 <li><p><strong>sub</strong> – The subtree that needs to be matched.</p></li>
-<li><p><strong>path_</strong> – A private object used to produce meaningful error messages.</p></li>
+<li><p><strong>path</strong> – A private object used to produce meaningful error messages.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -257,7 +258,7 @@ would have been used as arguments in the shortcut decorator.</p>
 
 <dl class="py function">
 <dt id="flask_shortcut.util.get_request_data">
-<code class="sig-prename descclassname">flask_shortcut.util.</code><code class="sig-name descname">get_request_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="../_modules/flask_shortcut/util.html#get_request_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flask_shortcut.util.get_request_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">flask_shortcut.util.</span></code><code class="sig-name descname"><span class="pre">get_request_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Any</span><a class="reference internal" href="../_modules/flask_shortcut/util.html#get_request_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#flask_shortcut.util.get_request_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request data fetcher.</p>
 <p>This function inspects the mimetype in order to figure out how the data
 can be represented in a standard python-dictionary form.</p>
@@ -283,6 +284,7 @@ can be represented in a standard python-dictionary form.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -331,7 +333,7 @@ can be represented in a standard python-dictionary form.</p>
   
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Arne.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.3.
     </div>
   <script src="../_static/version_warning_offset.js"></script>
 

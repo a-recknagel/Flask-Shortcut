@@ -24,4 +24,3 @@ flask\_shortcut.util module
    :members:
    :undoc-members:
    :show-inheritance:
-
